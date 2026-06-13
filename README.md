@@ -12,15 +12,14 @@ Extracteur 3DMark est une application open-source permettant de lire et d'extrai
 ## Captures d'écran
 
 
-
-![Interface vide](assets/app_empty.png)
 *L'application prête à analyser vos fichiers.*
+![Interface vide](assets/app_empty.png)
 
-![Interface chargée](assets/app_data.png)
 *L'interface principale affichant les données extraites d'un benchmark.*
+![Interface chargée](assets/app_data.png)
 
-![Export PDF](assets/pdf_export.png)
 *Exemple du rapport PDF généré automatiquement.*
+![Export PDF](assets/pdf_export.png)
 
 ## Installation et Utilisation
 Vous pouvez installer l'application complète via l'exécutable d'installation disponible dans le dossier des releases de ce projet.
