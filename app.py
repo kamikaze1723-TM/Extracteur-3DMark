@@ -30,7 +30,7 @@ class StatCard(tk.Frame):
         self.top = tk.Frame(self, bg=theme["panel"])
         self.top.pack(fill="x")
 
-        self.icon_lbl = tk.Label(self.top, text=icon, font=("Segoe UI Emoji", 12), fg=accent, bg=theme["panel"])
+        self.icon_lbl = tk.Label(self.top, text=icon, font=("Segoe MDL2 Assets", 12), fg=accent, bg=theme["panel"])
         self.icon_lbl.pack(side="left")
         
         self.title_lbl = tk.Label(self.top, text=title, font=("Segoe UI", 9), fg=theme["muted"], bg=theme["panel"])
@@ -102,21 +102,72 @@ class ModernApp(TkinterDnD.Tk):
         self.file_path = None
         self.current_data = None
         
-        self.icons = {"import": "📁", "activity": "📜", "summary": "📊", "score": "🏆", "fps": "⚡", "stability": "🎯", "loops": "🔄", "gpu": "🎮", "cpu": "🧠", "ram": "💾"}
+        self.icons = {
+            "import": "\uE896", 
+            "activity": "\uE8C4", 
+            "summary": "\uE9F9", 
+            "score": "\uE8CB", 
+            "fps": "\uE945", 
+            "stability": "\uE91C", 
+            "loops": "\uE8D8", 
+            "gpu": "\uE7F4", 
+            "cpu": "\uE968", 
+            "ram": "\uE9A1"
+        }
+        self._build_custom_titlebar()
         self._build_ui()
         self.bind_all("<MouseWheel>", self._on_mousewheel)
-        self.apply_titlebar_theme()
 
-    def apply_titlebar_theme(self):
-        try:
-            self.update()
-            hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
-            value = ctypes.c_int(1 if self.is_dark else 0)
-            res = ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 20, ctypes.byref(value), ctypes.sizeof(value))
-            if res != 0:
-                ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 19, ctypes.byref(value), ctypes.sizeof(value))
-        except Exception:
-            pass
+    def _build_custom_titlebar(self):
+        self.overrideredirect(True)
+        self.title_bar = tk.Frame(self, bg=self.theme["bg"], relief="flat", bd=0)
+        self.title_bar.pack(fill="x", side="top")
+        
+        self.title_label = tk.Label(self.title_bar, text=APP_TITLE, bg=self.theme["bg"], fg=self.theme["muted"], font=("Segoe UI", 9, "bold"))
+        self.title_label.pack(side="left", padx=10, pady=5)
+        
+        self.close_btn = tk.Button(self.title_bar, text="\uE711", bg=self.theme["bg"], fg=self.theme["muted"], bd=0, font=("Segoe MDL2 Assets", 10), command=self.destroy, activebackground="#F43F5E", activeforeground="white", cursor="hand2")
+        self.close_btn.pack(side="right", padx=(2, 10), pady=2)
+        
+        self.maximize_btn = tk.Button(self.title_bar, text="\uE739", bg=self.theme["bg"], fg=self.theme["muted"], bd=0, font=("Segoe MDL2 Assets", 10), command=self.toggle_maximize, activebackground=self.theme["panel3"], activeforeground=self.theme["text"], cursor="hand2")
+        self.maximize_btn.pack(side="right", padx=2, pady=2)
+        
+        self.minimize_btn = tk.Button(self.title_bar, text="\uE921", bg=self.theme["bg"], fg=self.theme["muted"], bd=0, font=("Segoe MDL2 Assets", 10), command=self.minimize_app, activebackground=self.theme["panel3"], activeforeground=self.theme["text"], cursor="hand2")
+        self.minimize_btn.pack(side="right", padx=2, pady=2)
+        
+        self.title_bar.bind("<ButtonPress-1>", self.start_move)
+        self.title_bar.bind("<B1-Motion>", self.do_move)
+        self.title_label.bind("<ButtonPress-1>", self.start_move)
+        self.title_label.bind("<B1-Motion>", self.do_move)
+        self.bind("<Map>", self.on_map)
+
+    def start_move(self, event):
+        self.x = event.x
+        self.y = event.y
+
+    def do_move(self, event):
+        deltax = event.x - self.x
+        deltay = event.y - self.y
+        x = self.winfo_x() + deltax
+        y = self.winfo_y() + deltay
+        self.geometry(f"+{x}+{y}")
+
+    def toggle_maximize(self):
+        if self.state() == "zoomed":
+            self.state("normal")
+            self.maximize_btn.config(text="\uE739")
+        else:
+            self.state("zoomed")
+            self.maximize_btn.config(text="\uE923")
+
+    def minimize_app(self):
+        self.state('withdrawn')
+        self.overrideredirect(False)
+        self.state('iconic')
+
+    def on_map(self, event):
+        if self.state() == 'normal':
+            self.overrideredirect(True)
 
     def tr(self, key):
         return TRANSLATIONS.get(self.current_lang.get(), TRANSLATIONS["en"]).get(key, key)
@@ -130,11 +181,19 @@ class ModernApp(TkinterDnD.Tk):
         self.is_dark = not self.is_dark
         self.theme = get_theme(self.is_dark)
         self.configure(bg=self.theme["bg"])
-        self.apply_titlebar_theme()
         
-        self.btn_theme.config(text="🌞" if self.is_dark else "🌙", bg=self.theme["bg"], fg=self.theme["text"], activebackground=self.theme["bg"])
+        self.btn_theme.config(text="\uE706" if self.is_dark else "\uE708", bg=self.theme["bg"], fg=self.theme["text"], activebackground=self.theme["bg"])
         self.title_lbl.config(fg=self.theme["text"], bg=self.theme["bg"])
         self.desc_lbl.config(fg=self.theme["muted"], bg=self.theme["bg"])
+        
+        self.title_bar.config(bg=self.theme["bg"])
+        self.title_label.config(bg=self.theme["bg"], fg=self.theme["muted"])
+        self.close_btn.config(bg=self.theme["bg"], fg=self.theme["muted"])
+        self.maximize_btn.config(bg=self.theme["bg"], fg=self.theme["muted"], activebackground=self.theme["panel3"], activeforeground=self.theme["text"])
+        self.minimize_btn.config(bg=self.theme["bg"], fg=self.theme["muted"], activebackground=self.theme["panel3"], activeforeground=self.theme["text"])
+        
+        if hasattr(self, "grip"):
+            self.grip.config(bg=self.theme["bg"], fg=self.theme["muted"])
         
         for w in [self.root_frame, self.header, self.left_head, self.title_frame, self.lang_frame, self.stats_row, self.content, self.left, self.right]:
             w.config(bg=self.theme["bg"])
@@ -247,7 +306,7 @@ class ModernApp(TkinterDnD.Tk):
         self.lang_frame = tk.Frame(self.header, bg=self.theme["bg"])
         self.lang_frame.pack(side="right", padx=(16, 0))
         
-        self.btn_theme = tk.Button(self.lang_frame, text="🌞", command=self.toggle_theme, bg=self.theme["bg"], fg=self.theme["text"], relief="flat", bd=0, font=("Segoe UI Emoji", 14), cursor="hand2")
+        self.btn_theme = tk.Button(self.lang_frame, text="\uE706", command=self.toggle_theme, bg=self.theme["bg"], fg=self.theme["text"], relief="flat", bd=0, font=("Segoe MDL2 Assets", 14), cursor="hand2")
         self.btn_theme.pack(side="left", padx=10)
         
         self.rb_fr = tk.Radiobutton(self.lang_frame, text="FR", variable=self.current_lang, value="fr", bg=self.theme["bg"], fg=self.theme["text"], selectcolor=self.theme["accent"], activebackground=self.theme["bg"], activeforeground=self.theme["accent"], indicatoron=False, bd=0, font=("Segoe UI", 9, "bold"), cursor="hand2", padx=10, pady=5)
@@ -293,7 +352,7 @@ class ModernApp(TkinterDnD.Tk):
         
         self.sum_header = tk.Frame(self.summary_card, bg=self.theme["panel2"])
         self.sum_header.pack(fill="x", padx=18, pady=(18, 10))
-        self.sum_icon = tk.Label(self.sum_header, text=self.icons["summary"], font=("Segoe UI Emoji", 16), fg=self.theme["accent"], bg=self.theme["panel2"])
+        self.sum_icon = tk.Label(self.sum_header, text=self.icons["summary"], font=("Segoe MDL2 Assets", 16), fg=self.theme["accent"], bg=self.theme["panel2"])
         self.sum_icon.pack(side="left", padx=(0, 10))
         self.sum_text_f = tk.Frame(self.sum_header, bg=self.theme["panel2"])
         self.sum_text_f.pack(side="left", fill="x", expand=True)
@@ -321,7 +380,7 @@ class ModernApp(TkinterDnD.Tk):
         
         self.imp_header = tk.Frame(self.import_card, bg=self.theme["panel2"])
         self.imp_header.pack(fill="x", padx=18, pady=(18, 10))
-        self.imp_icon = tk.Label(self.imp_header, text=self.icons["import"], font=("Segoe UI Emoji", 16), fg=self.theme["accent"], bg=self.theme["panel2"])
+        self.imp_icon = tk.Label(self.imp_header, text=self.icons["import"], font=("Segoe MDL2 Assets", 16), fg=self.theme["accent"], bg=self.theme["panel2"])
         self.imp_icon.pack(side="left", padx=(0, 10))
         self.imp_text_f = tk.Frame(self.imp_header, bg=self.theme["panel2"])
         self.imp_text_f.pack(side="left", fill="x", expand=True)
@@ -376,7 +435,7 @@ class ModernApp(TkinterDnD.Tk):
         
         self.act_header = tk.Frame(self.activity_card, bg=self.theme["panel2"])
         self.act_header.pack(fill="x", padx=18, pady=(18, 10))
-        self.act_icon = tk.Label(self.act_header, text=self.icons["activity"], font=("Segoe UI Emoji", 16), fg=self.theme["accent"], bg=self.theme["panel2"])
+        self.act_icon = tk.Label(self.act_header, text=self.icons["activity"], font=("Segoe MDL2 Assets", 16), fg=self.theme["accent"], bg=self.theme["panel2"])
         self.act_icon.pack(side="left", padx=(0, 10))
         self.act_text_f = tk.Frame(self.act_header, bg=self.theme["panel2"])
         self.act_text_f.pack(side="left", fill="x", expand=True)
@@ -389,8 +448,26 @@ class ModernApp(TkinterDnD.Tk):
         self.log.pack(fill="both", expand=True, padx=18, pady=(0, 18))
         self.log.insert("end", self.tr("log_ready"))
         self.log.configure(state="disabled")
-        
         self.update_summary_panel({})
+
+        self.grip = tk.Label(self, text="\uE76F", font=("Segoe MDL2 Assets", 10), fg=self.theme["muted"], bg=self.theme["bg"], cursor="size_nw_se")
+        self.grip.place(relx=1.0, rely=1.0, anchor="se")
+        self.grip.bind("<ButtonPress-1>", self.start_resize)
+        self.grip.bind("<B1-Motion>", self.do_resize)
+
+    def start_resize(self, event):
+        self.start_w = self.winfo_width()
+        self.start_h = self.winfo_height()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+    def do_resize(self, event):
+        new_w = self.start_w + (event.x_root - self.start_x)
+        new_h = self.start_h + (event.y_root - self.start_y)
+        min_w, min_h = self.minsize()
+        new_w = max(min_w, new_w)
+        new_h = max(min_h, new_h)
+        self.geometry(f"{new_w}x{new_h}")
 
     def write_log(self, text):
         self.log.configure(state="normal")
