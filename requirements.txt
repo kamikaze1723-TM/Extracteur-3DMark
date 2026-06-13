@@ -1,1 +1,3 @@
 reportlab
+tkinterdnd2
+matplotlib

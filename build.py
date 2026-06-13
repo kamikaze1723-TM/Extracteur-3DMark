@@ -5,11 +5,12 @@ import shutil
 def main():
     print("--- Compilation de l'application principale ---")
     app_cmd = [
-        "python", "-m", "PyInstaller",
+        "py", "-m", "PyInstaller",
         "--noconsole",
         "--onefile",
         "--icon", "logo.ico",
         "--name", "Extracteur_3DMark",
+        "--collect-data", "tkinterdnd2",
         "app.py"
     ]
     subprocess.run(app_cmd, check=True)
