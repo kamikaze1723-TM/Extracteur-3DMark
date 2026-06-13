@@ -105,6 +105,18 @@ class ModernApp(TkinterDnD.Tk):
         self.icons = {"import": "📁", "activity": "📜", "summary": "📊", "score": "🏆", "fps": "⚡", "stability": "🎯", "loops": "🔄", "gpu": "🎮", "cpu": "🧠", "ram": "💾"}
         self._build_ui()
         self.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.apply_titlebar_theme()
+
+    def apply_titlebar_theme(self):
+        try:
+            self.update()
+            hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
+            value = ctypes.c_int(1 if self.is_dark else 0)
+            res = ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 20, ctypes.byref(value), ctypes.sizeof(value))
+            if res != 0:
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 19, ctypes.byref(value), ctypes.sizeof(value))
+        except Exception:
+            pass
 
     def tr(self, key):
         return TRANSLATIONS.get(self.current_lang.get(), TRANSLATIONS["en"]).get(key, key)
@@ -118,6 +130,7 @@ class ModernApp(TkinterDnD.Tk):
         self.is_dark = not self.is_dark
         self.theme = get_theme(self.is_dark)
         self.configure(bg=self.theme["bg"])
+        self.apply_titlebar_theme()
         
         self.btn_theme.config(text="🌞" if self.is_dark else "🌙", bg=self.theme["bg"], fg=self.theme["text"], activebackground=self.theme["bg"])
         self.title_lbl.config(fg=self.theme["text"], bg=self.theme["bg"])
