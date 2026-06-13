@@ -30,4 +30,6 @@ Si vous souhaitez compiler l'application vous-même :
 
 ## Licence
 Ce projet est distribué sous la licence **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
-Vous êtes libre d'utiliser, de modifier et de distribuer ce logiciel pour des projets personnels ou open-source, **à condition de ne pas en faire un usage commercial**.
+Vous êtes libre d'utiliser, de modifier et de distribuer ce logiciel pour des projets personnels ou open-source, **à condition de respecter ces deux règles absolues :**
+1. **Pas d'utilisation commerciale** : Interdiction absolue de vendre ou monétiser ce logiciel ou son code.
+2. **Mention obligatoire de l'auteur** : Vous devez explicitement créditer l'auteur originel (`Kamikaze_TM`) en cas de réutilisation ou de modification.
