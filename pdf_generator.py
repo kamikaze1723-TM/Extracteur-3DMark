@@ -38,11 +38,15 @@ def generate_chart(data, tr):
     has_plotted = False
     if data["fps_values"]:
         plt.plot(range(1, len(data["fps_values"]) + 1), data["fps_values"], marker='o', color='#3B82F6', label=tr("pdf_fps"))
+        max_fps = max(data["fps_values"])
+        plt.ylim(0, max_fps * 1.15 if max_fps > 0 else 100)
         has_plotted = True
         
     if data["scores"] and not data["fps_values"]:
         # Only plot scores if FPS is missing, to avoid weird scaling, or use twinx
         plt.plot(range(1, len(data["scores"]) + 1), data["scores"], marker='s', color='#8B5CF6', label=tr("pdf_score"))
+        max_score = max(data["scores"])
+        plt.ylim(0, max_score * 1.15 if max_score > 0 else 100)
         has_plotted = True
         
     if not has_plotted:

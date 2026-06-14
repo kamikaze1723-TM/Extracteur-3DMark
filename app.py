@@ -19,6 +19,48 @@ except Exception:
     pass
 
 APP_TITLE = "3DMark Result → PDF"
+CONFIG_FILE = "config.json"
+HISTORY_FILE = "history.json"
+
+class Config:
+    @staticmethod
+    def load():
+        try:
+            if os.path.exists(CONFIG_FILE):
+                with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except Exception:
+            pass
+        return {"theme": "dark", "lang": "fr"}
+
+    @staticmethod
+    def save(data):
+        try:
+            with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f)
+        except Exception:
+            pass
+
+class History:
+    @staticmethod
+    def load():
+        try:
+            if os.path.exists(HISTORY_FILE):
+                with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except Exception:
+            pass
+        return []
+
+    @staticmethod
+    def append(record):
+        hist = History.load()
+        hist.append(record)
+        try:
+            with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+                json.dump(hist, f)
+        except Exception:
+            pass
 
 class StatCard(tk.Frame):
     def __init__(self, parent, title, icon, value="—", accent="#38bdf8", theme=None):
@@ -61,15 +103,25 @@ class ScrollableFrame(ttk.Frame):
 
         self.scrollable_frame.bind("<Configure>", self._configure_scrollregion)
         self.window_id = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.bind("<Configure>", lambda e: self.canvas.itemconfig(self.window_id, width=e.width))
+        
+        def on_canvas_configure(e):
+            self.canvas.itemconfig(self.window_id, width=e.width)
+            self._configure_scrollregion()
+            
+        self.canvas.bind("<Configure>", on_canvas_configure)
 
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
         self.canvas.pack(side="left", fill="both", expand=True)
 
-    def _configure_scrollregion(self, event):
+    def _configure_scrollregion(self, event=None):
+        self.canvas.update_idletasks()
         bbox = self.canvas.bbox("all")
         if bbox:
-            self.canvas.configure(scrollregion=bbox)
+            canvas_height = self.canvas.winfo_height()
+            if bbox[3] < canvas_height:
+                self.canvas.configure(scrollregion=(bbox[0], bbox[1], bbox[2], canvas_height))
+            else:
+                self.canvas.configure(scrollregion=bbox)
             
     def update_theme(self, theme):
         self.theme = theme
@@ -80,8 +132,9 @@ class ModernApp(TkinterDnD.Tk):
     def __init__(self):
         super().__init__()
         
-        self.is_dark = True
-        self.current_lang = tk.StringVar(value="fr")
+        cfg = Config.load()
+        self.is_dark = (cfg.get("theme", "dark") == "dark")
+        self.current_lang = tk.StringVar(value=cfg.get("lang", "fr"))
         self.current_lang.trace_add("write", self.update_language)
         self.theme = get_theme(self.is_dark)
         
@@ -119,7 +172,8 @@ class ModernApp(TkinterDnD.Tk):
         self.bind_all("<MouseWheel>", self._on_mousewheel)
 
     def _build_custom_titlebar(self):
-        self.overrideredirect(True)
+        self.bind("<Map>", lambda e: self.after(10, self.remove_title_bar) if str(e.widget) == str(self) else None)
+        self.after(10, self.remove_title_bar)
         self.title_bar = tk.Frame(self, bg=self.theme["bg"], relief="flat", bd=0)
         self.title_bar.pack(fill="x", side="top")
         
@@ -136,21 +190,16 @@ class ModernApp(TkinterDnD.Tk):
         self.minimize_btn.pack(side="right", padx=2, pady=2)
         
         self.title_bar.bind("<ButtonPress-1>", self.start_move)
-        self.title_bar.bind("<B1-Motion>", self.do_move)
         self.title_label.bind("<ButtonPress-1>", self.start_move)
-        self.title_label.bind("<B1-Motion>", self.do_move)
-        self.bind("<Map>", self.on_map)
 
     def start_move(self, event):
-        self.x = event.x
-        self.y = event.y
-
-    def do_move(self, event):
-        deltax = event.x - self.x
-        deltay = event.y - self.y
-        x = self.winfo_x() + deltax
-        y = self.winfo_y() + deltay
-        self.geometry(f"+{x}+{y}")
+        try:
+            import ctypes
+            hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
+            ctypes.windll.user32.ReleaseCapture()
+            ctypes.windll.user32.SendMessageW(hwnd, 0xA1, 2, 0)
+        except Exception:
+            pass
 
     def toggle_maximize(self):
         if self.state() == "zoomed":
@@ -161,13 +210,32 @@ class ModernApp(TkinterDnD.Tk):
             self.maximize_btn.config(text="\uE923")
 
     def minimize_app(self):
-        self.state('withdrawn')
-        self.overrideredirect(False)
         self.state('iconic')
 
-    def on_map(self, event):
-        if self.state() == 'normal':
-            self.overrideredirect(True)
+    def remove_title_bar(self):
+        try:
+            import ctypes
+            hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
+            
+            # Apply immersive dark mode for the window frame to remove the white line
+            try:
+                DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+                policy = ctypes.c_int(2)
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(policy), ctypes.sizeof(policy))
+            except Exception:
+                try:
+                    # Windows 10 older build fallback
+                    DWMWA_USE_IMMERSIVE_DARK_MODE_V2 = 19
+                    ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_V2, ctypes.byref(policy), ctypes.sizeof(policy))
+                except Exception:
+                    pass
+
+            style = ctypes.windll.user32.GetWindowLongW(hwnd, -16)
+            style = style & ~0x00C00000
+            ctypes.windll.user32.SetWindowLongW(hwnd, -16, style)
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0037)
+        except Exception:
+            pass
 
     def tr(self, key):
         return TRANSLATIONS.get(self.current_lang.get(), TRANSLATIONS["en"]).get(key, key)
@@ -175,12 +243,17 @@ class ModernApp(TkinterDnD.Tk):
     def _on_mousewheel(self, event):
         widget = self.winfo_containing(event.x_root, event.y_root)
         if widget and str(widget).startswith(str(self.summary_container)):
-            self.scroll_wrapper.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            if self.scroll_wrapper.scrollable_frame.winfo_height() > self.scroll_wrapper.canvas.winfo_height():
+                self.scroll_wrapper.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def toggle_theme(self):
         self.is_dark = not self.is_dark
         self.theme = get_theme(self.is_dark)
         self.configure(bg=self.theme["bg"])
+        
+        cfg = Config.load()
+        cfg["theme"] = "dark" if self.is_dark else "light"
+        Config.save(cfg)
         
         self.btn_theme.config(text="\uE706" if self.is_dark else "\uE708", bg=self.theme["bg"], fg=self.theme["text"], activebackground=self.theme["bg"])
         self.title_lbl.config(fg=self.theme["text"], bg=self.theme["bg"])
@@ -253,6 +326,10 @@ class ModernApp(TkinterDnD.Tk):
             self.update_summary_panel({})
 
     def update_language(self, *args):
+        cfg = Config.load()
+        cfg["lang"] = self.current_lang.get()
+        Config.save(cfg)
+        
         self.title_lbl.config(text=self.tr("title_extractor"))
         self.desc_lbl.config(text=self.tr("desc_main"))
         self.choose_btn.config(text=self.tr("btn_load"))
@@ -260,6 +337,10 @@ class ModernApp(TkinterDnD.Tk):
         self.btn_batch.config(text=self.tr("btn_batch"))
         self.btn_json.config(text=self.tr("btn_json"))
         self.btn_csv.config(text=self.tr("btn_csv"))
+        
+        if hasattr(self, "btn_history"):
+            self.btn_history.config(text=self.tr("btn_history"))
+            
         self.lbl_drag.config(text=self.tr("drag_drop"))
         self.lbl_click.config(text=self.tr("or_click"))
         self.lbl_drag_desc.config(text=self.tr("drag_desc"))
@@ -305,6 +386,9 @@ class ModernApp(TkinterDnD.Tk):
 
         self.lang_frame = tk.Frame(self.header, bg=self.theme["bg"])
         self.lang_frame.pack(side="right", padx=(16, 0))
+        
+        self.btn_history = tk.Button(self.lang_frame, text=self.tr("btn_history"), command=self.show_history, bg=self.theme["bg"], fg=self.theme["text"], relief="flat", bd=0, font=("Segoe UI", 9, "bold"), cursor="hand2", padx=10)
+        self.btn_history.pack(side="left", padx=10)
         
         self.btn_theme = tk.Button(self.lang_frame, text="\uE706", command=self.toggle_theme, bg=self.theme["bg"], fg=self.theme["text"], relief="flat", bd=0, font=("Segoe MDL2 Assets", 14), cursor="hand2")
         self.btn_theme.pack(side="left", padx=10)
@@ -370,8 +454,7 @@ class ModernApp(TkinterDnD.Tk):
         
         self.sections_layout = {
             "sec_result": [("Status", "Passed"), ("Overall Score", "Average score"), ("Best score", "Best score"), ("Worst score", "Worst score"), ("Stability", "Stability %"), ("Average FPS", "Average FPS")],
-            "sec_system": [("GPU", "GPU"), ("CPU", "CPU"), ("RAM", "RAM"), ("VRAM", "VRAM"), ("OS", "OS"), ("Driver", "Driver"), ("Computer", "Computer"), ("User", "User")],
-            "sec_test": [("Benchmark", "Benchmark name"), ("API", "API"), ("Resolution", "Resolution"), ("Loop count", "Loop count"), ("Benchmark ID", "Benchmark ID")]
+            "sec_test": [("Benchmark", "Benchmark name"), ("API", "API"), ("Resolution", "Resolution"), ("Loop count", "Loop count"), ("Benchmark ID", "Benchmark ID"), ("Computer", "Computer"), ("User", "User")]
         }
 
         # Import Card
@@ -483,9 +566,49 @@ class ModernApp(TkinterDnD.Tk):
 
     def update_summary_panel(self, data):
         summary = data.get("summary", {})
+        
+        if hasattr(self, "current_fig") and self.current_fig:
+            import matplotlib.pyplot as plt
+            plt.close(self.current_fig)
+            self.current_fig = None
+            
         for widget in self.summary_container.winfo_children(): widget.destroy()
         self.sec_labels = {}
         self.item_labels = {}
+        
+        if summary:
+            hw_frame = tk.Frame(self.summary_container, bg=self.theme["panel2"])
+            hw_frame.pack(fill="x", pady=(0, 16))
+            lbl_hw = tk.Label(hw_frame, text=self.tr("hardware_title").upper(), font=("Segoe UI", 10, "bold"), fg=self.theme["accent"], bg=self.theme["panel2"])
+            lbl_hw.pack(anchor="w", pady=(0, 8))
+            self.sec_labels["hardware"] = lbl_hw
+            hw_grid = tk.Frame(hw_frame, bg=self.theme["panel2"])
+            hw_grid.pack(fill="x")
+            hw_grid.columnconfigure(0, weight=1, uniform="col")
+            hw_grid.columnconfigure(1, weight=1, uniform="col")
+            hw_grid.columnconfigure(2, weight=1, uniform="col")
+            
+            hw_items = [
+                ("\uE968", "CPU", summary.get("CPU", "—")),
+                ("\uE7F4", "GPU", summary.get("GPU", "—")),
+                ("\uE9A1", "RAM", f"{summary.get('RAM', '—')} {summary.get('RAM Speed', '')} (VRAM: {summary.get('VRAM', '—')})".strip()),
+                ("\uE7B3", "OS", summary.get("OS", "—")),
+                ("\uE9A6", "Driver", summary.get("Driver", "—")),
+                ("\uE977", "Motherboard", summary.get("Motherboard", "—")),
+                ("\uE713", "BIOS", summary.get("BIOS", "—"))
+            ]
+            r, c = 0, 0
+            for icon, label, val in hw_items:
+                f = tk.Frame(hw_grid, bg=self.theme["panel3"])
+                f.grid(row=r, column=c, sticky="nsew", padx=6, pady=6)
+                tf = tk.Frame(f, bg=self.theme["panel3"])
+                tf.pack(anchor="w", padx=10, pady=(8, 0))
+                tk.Label(tf, text=icon, font=("Segoe MDL2 Assets", 10), fg=self.theme["accent"], bg=self.theme["panel3"]).pack(side="left")
+                tk.Label(tf, text=label, font=("Segoe UI", 9), fg=self.theme["muted"], bg=self.theme["panel3"]).pack(side="left", padx=(4,0))
+                tk.Label(f, text=str(val), font=("Segoe UI", 10, "bold"), fg=self.theme["text"], bg=self.theme["panel3"], wraplength=200, justify="left").pack(anchor="w", padx=10, pady=(4, 8))
+                c += 1
+                if c > 2:
+                    c = 0; r += 1
 
         for section, items in self.sections_layout.items():
             sec_frame = tk.Frame(self.summary_container, bg=self.theme["panel2"])
@@ -518,6 +641,110 @@ class ModernApp(TkinterDnD.Tk):
                 if col > 2:
                     col = 0; row += 1
 
+        if data.get("monitoring") or data.get("fps_values") or data.get("scores"):
+            import matplotlib
+            matplotlib.use("TkAgg")
+            import matplotlib.pyplot as plt
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+            
+            graph_frame = tk.Frame(self.summary_container, bg=self.theme["panel2"])
+            graph_frame.pack(fill="x", pady=(10, 16))
+            
+            lbl_g = tk.Label(graph_frame, text=self.tr("pdf_perf_loops").upper(), font=("Segoe UI", 10, "bold"), fg=self.theme["accent"], bg=self.theme["panel2"])
+            lbl_g.pack(anchor="w", pady=(0, 8))
+            self.sec_labels["graph"] = lbl_g
+            
+            mon = data.get("monitoring")
+            if mon and any((mon["cpu_temp"], mon["gpu_temp"], mon["gpu_load"], mon["cpu_clock"])):
+                fig, axs = plt.subplots(4, 1, sharex=True, figsize=(8, 8), facecolor=self.theme["panel2"])
+                self.current_fig = fig
+                fig.subplots_adjust(hspace=0.3, left=0.08, right=0.95, top=0.95, bottom=0.05)
+                
+                t = mon.get("time", [])
+                if not t: t = range(len(mon.get("cpu_temp", [])))
+                
+                # Colors
+                c_fps = '#F97316'
+                c_cpu_t = '#06B6D4'
+                c_gpu_t = '#10B981'
+                c_gpu_l = '#EF4444'
+                c_cpu_c = '#8B5CF6'
+                c_gpu_c = '#EC4899'
+                
+                import math
+                def plot_valid(ax, t_arr, v_arr, **kwargs):
+                    if not v_arr: return
+                    valid_t, valid_v = [], []
+                    for ti, vi in zip(t_arr, v_arr):
+                        if vi is not None and not math.isnan(vi):
+                            valid_t.append(ti)
+                            valid_v.append(vi)
+                    if valid_v:
+                        ax.plot(valid_t, valid_v, **kwargs)
+                
+                def get_max(*lists):
+                    m = 0
+                    for lst in lists:
+                        if lst:
+                            valid = [v for v in lst if v is not None and not math.isnan(v)]
+                            if valid: m = max(m, max(valid))
+                    return m
+                
+                # 1. FPS
+                if data.get("fps_values"):
+                    fps_len = len(data["fps_values"])
+                    max_t = t[-1] if t else fps_len
+                    fps_t = [i * max_t / max(1, fps_len - 1) for i in range(fps_len)]
+                    axs[0].plot(fps_t, data["fps_values"], color=c_fps, linewidth=1.5, label=self.tr("graph_fps"))
+                    max_fps = max(data["fps_values"])
+                    axs[0].set_ylim(0, max_fps * 1.1 if max_fps > 0 else 100)
+                axs[0].set_ylabel("FPS", color=self.theme["muted"])
+                
+                # 2. Temps
+                if mon.get("cpu_temp"): plot_valid(axs[1], t, mon["cpu_temp"], color=c_cpu_t, linewidth=1.2, label=self.tr("graph_legend_cpu_temp"))
+                if mon.get("gpu_temp"): plot_valid(axs[1], t, mon["gpu_temp"], color=c_gpu_t, linewidth=1.2, label=self.tr("graph_legend_gpu_temp"))
+                max_temp = get_max(mon.get("cpu_temp"), mon.get("gpu_temp"))
+                axs[1].set_ylim(0, max_temp * 1.1 if max_temp > 0 else 100)
+                axs[1].set_ylabel(self.tr("graph_temps"), color=self.theme["muted"])
+                
+                # 3. Load
+                if mon.get("gpu_load"): plot_valid(axs[2], t, mon["gpu_load"], color=c_gpu_l, linewidth=1.2, label=self.tr("graph_legend_gpu_load"))
+                axs[2].set_ylabel(self.tr("graph_load"), color=self.theme["muted"])
+                axs[2].set_ylim(0, 105)
+                
+                # 4. Clock
+                if mon.get("cpu_clock"): plot_valid(axs[3], t, mon["cpu_clock"], color=c_cpu_c, linewidth=1.2, label=self.tr("graph_legend_cpu_clock"))
+                if mon.get("gpu_clock"): plot_valid(axs[3], t, mon["gpu_clock"], color=c_gpu_c, linewidth=1.2, label=self.tr("graph_legend_gpu_clock"))
+                max_clock = get_max(mon.get("cpu_clock"), mon.get("gpu_clock"))
+                axs[3].set_ylim(0, max_clock * 1.1 if max_clock > 0 else 1000)
+                axs[3].set_ylabel(self.tr("graph_clocks"), color=self.theme["muted"])
+                
+                for ax in axs:
+                    ax.set_facecolor(self.theme["panel2"])
+                    ax.tick_params(colors=self.theme["muted"], labelsize=8)
+                    for spine in ax.spines.values(): spine.set_color(self.theme["border2"])
+                    ax.grid(True, linestyle='--', alpha=0.2, color=self.theme["border2"])
+                    if ax.get_legend_handles_labels()[0]:
+                        ax.legend(loc="upper right", fontsize=8, facecolor=self.theme["panel3"], edgecolor=self.theme["border"], labelcolor=self.theme["text"])
+            else:
+                fig, ax = plt.subplots(figsize=(6, 3), facecolor=self.theme["panel2"])
+                ax.set_facecolor(self.theme["panel2"])
+                self.current_fig = fig
+                
+                if data.get("fps_values"):
+                    ax.plot(range(1, len(data["fps_values"]) + 1), data["fps_values"], marker='o', color='#3B82F6', label=self.tr("pdf_fps"))
+                elif data.get("scores"):
+                    ax.plot(range(1, len(data["scores"]) + 1), data["scores"], marker='s', color='#8B5CF6', label=self.tr("pdf_score"))
+                    
+                ax.tick_params(colors=self.theme["muted"])
+                for spine in ax.spines.values(): spine.set_color(self.theme["border2"])
+                ax.grid(True, linestyle='--', alpha=0.3, color=self.theme["border2"])
+                ax.legend(facecolor=self.theme["panel3"], edgecolor=self.theme["border"], labelcolor=self.theme["text"])
+
+            canvas = FigureCanvasTkAgg(self.current_fig, master=graph_frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+
         self.top_score.set(str(summary.get("Best score") or "—"))
         self.top_fps.set(str(summary.get("Average FPS") or "—"))
         self.top_stability.set(f"{summary.get('Stability %')} %" if summary.get("Stability %") not in (None, "") else "—")
@@ -529,8 +756,74 @@ class ModernApp(TkinterDnD.Tk):
 
     def on_drop(self, event):
         files = self.tk.splitlist(event.data)
-        if files:
+        if len(files) == 1:
             self.load_file(files[0])
+        elif len(files) == 2:
+            self.compare_files(files[0], files[1])
+        elif len(files) > 2:
+            self.write_log("Veuillez glisser 1 fichier (lecture) ou 2 fichiers (comparaison).")
+
+    def compare_files(self, p1, p2):
+        self.write_log(f"Comparaison de {os.path.basename(p1)} et {os.path.basename(p2)}")
+        try:
+            d1 = collect_archive_info(p1)
+            d2 = collect_archive_info(p2)
+            
+            win = tk.Toplevel(self)
+            win.title(self.tr("compare_mode"))
+            win.geometry("900x500")
+            win.configure(bg=self.theme["bg"])
+            try: win.iconbitmap("icon.ico")
+            except: pass
+            
+            tk.Label(win, text=self.tr("compare_mode").upper(), font=("Segoe UI", 16, "bold"), bg=self.theme["bg"], fg=self.theme["text"]).pack(pady=20)
+            
+            f = tk.Frame(win, bg=self.theme["panel2"], highlightthickness=1, highlightbackground=self.theme["border"])
+            f.pack(fill="both", expand=True, padx=40, pady=(0, 40))
+            
+            f.columnconfigure(0, weight=1)
+            f.columnconfigure(1, weight=1)
+            f.columnconfigure(2, weight=1)
+            f.columnconfigure(3, weight=1)
+            
+            tk.Label(f, text="Métrique", font=("Segoe UI", 10, "bold"), bg=self.theme["panel2"], fg=self.theme["muted"]).grid(row=0, column=0, pady=15)
+            tk.Label(f, text=os.path.basename(p1), font=("Segoe UI", 10, "bold"), bg=self.theme["panel2"], fg=self.theme["text"]).grid(row=0, column=1, pady=15)
+            tk.Label(f, text="Différence", font=("Segoe UI", 10, "bold"), bg=self.theme["panel2"], fg=self.theme["muted"]).grid(row=0, column=2, pady=15)
+            tk.Label(f, text=os.path.basename(p2), font=("Segoe UI", 10, "bold"), bg=self.theme["panel2"], fg=self.theme["text"]).grid(row=0, column=3, pady=15)
+            
+            def safe_num(v):
+                if isinstance(v, (int, float)): return v
+                try: return float(v)
+                except: return None
+                
+            metrics = [("Benchmark name", "Benchmark"), ("Best score", "Score Global"), ("Average FPS", "FPS Moyen"), ("Stability %", "Stabilité"), ("GPU", "GPU"), ("CPU", "CPU"), ("RAM", "RAM")]
+            
+            for r, (key, label) in enumerate(metrics, start=1):
+                v1 = d1["summary"].get(key, "—")
+                v2 = d2["summary"].get(key, "—")
+                
+                tk.Label(f, text=label, font=("Segoe UI", 10, "bold"), bg=self.theme["panel2"], fg=self.theme["muted"]).grid(row=r, column=0, padx=10, pady=10, sticky="e")
+                tk.Label(f, text=str(v1), font=("Segoe UI", 10), bg=self.theme["panel2"], fg=self.theme["text"]).grid(row=r, column=1, padx=10, pady=10)
+                
+                n1, n2 = safe_num(v1), safe_num(v2)
+                diff_text = "—"
+                fg_col = self.theme["muted"]
+                if n1 is not None and n2 is not None and n1 != 0:
+                    diff = ((n2 - n1) / n1) * 100
+                    if diff > 0:
+                        diff_text = f"+{diff:.1f}%"
+                        fg_col = self.theme["success"]
+                    elif diff < 0:
+                        diff_text = f"{diff:.1f}%"
+                        fg_col = self.theme["danger"]
+                    else:
+                        diff_text = "0%"
+                        
+                tk.Label(f, text=diff_text, font=("Segoe UI", 10, "bold"), bg=self.theme["panel2"], fg=fg_col).grid(row=r, column=2, padx=10, pady=10)
+                tk.Label(f, text=str(v2), font=("Segoe UI", 10), bg=self.theme["panel2"], fg=self.theme["text"]).grid(row=r, column=3, padx=10, pady=10)
+
+        except Exception as e:
+            self.write_log(self.tr("log_err_read").format(e))
 
     def pick_file(self):
         path = filedialog.askopenfilename(title=self.tr("import_title"), filetypes=[("3DMark Result", "*.3dmark-result"), ("ZIP", "*.zip"), ("Tous les fichiers", "*.*")])
@@ -545,9 +838,120 @@ class ModernApp(TkinterDnD.Tk):
             data = collect_archive_info(path)
             self.current_data = data
             self.update_summary_panel(data)
+            
+            from datetime import datetime
+            record = {
+                "date": datetime.now().strftime('%Y-%m-%d %H:%M'),
+                "name": data["summary"].get("Benchmark name", "Unknown"),
+                "score": data["summary"].get("Best score", "—"),
+                "fps": data["summary"].get("Average FPS", "—"),
+                "gpu": data["summary"].get("GPU", "Unknown")
+            }
+            History.append(record)
         except Exception as e:
             self.write_log(self.tr("log_err_read").format(e))
-            self.update_badge("ERROR")
+
+    def show_history(self):
+        hist = History.load()
+        win = tk.Toplevel(self)
+        win.title(self.tr("history_title"))
+        win.geometry("800x400")
+        win.configure(bg=self.theme["bg"])
+        
+        win.bind("<Map>", lambda e: win.after(10, lambda: self._remove_win_title_bar(win)) if str(e.widget) == str(win) else None)
+        win.after(10, lambda: self._remove_win_title_bar(win))
+        
+        # Center the window
+        self.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() // 2) - 400
+        y = self.winfo_y() + (self.winfo_height() // 2) - 200
+        win.geometry(f"+{x}+{y}")
+        
+        # Border wrapper
+        border_frame = tk.Frame(win, bg=self.theme["border"], bd=1)
+        border_frame.pack(fill="both", expand=True)
+        
+        # Title bar
+        title_bar = tk.Frame(border_frame, bg=self.theme["panel2"], relief="flat", bd=0)
+        title_bar.pack(fill="x", side="top")
+        
+        title_label = tk.Label(title_bar, text=self.tr("history_title"), bg=self.theme["panel2"], fg=self.theme["text"], font=("Segoe UI", 9, "bold"))
+        title_label.pack(side="left", padx=10, pady=5)
+        
+        close_btn = tk.Button(title_bar, text="\uE711", bg=self.theme["panel2"], fg=self.theme["muted"], bd=0, font=("Segoe MDL2 Assets", 10), command=win.destroy, activebackground="#F43F5E", activeforeground="white", cursor="hand2")
+        close_btn.pack(side="right", padx=(2, 10), pady=2)
+        
+        def start_move(event):
+            try:
+                import ctypes
+                hwnd = ctypes.windll.user32.GetParent(win.winfo_id())
+                ctypes.windll.user32.ReleaseCapture()
+                ctypes.windll.user32.SendMessageW(hwnd, 0xA1, 2, 0)
+            except Exception:
+                pass
+            
+        title_bar.bind("<ButtonPress-1>", start_move)
+        title_label.bind("<ButtonPress-1>", start_move)
+        
+        # Content
+        content_frame = tk.Frame(border_frame, bg=self.theme["bg"])
+        content_frame.pack(fill="both", expand=True)
+
+        lbl = tk.Label(content_frame, text=self.tr("history_title"), font=("Segoe UI", 16, "bold"), bg=self.theme["bg"], fg=self.theme["text"])
+        lbl.pack(pady=10)
+        
+        if not hist:
+            tk.Label(content_frame, text=self.tr("history_empty"), bg=self.theme["bg"], fg=self.theme["muted"]).pack(pady=20)
+            return
+            
+        style = ttk.Style(win)
+        style.theme_use('default')
+        style.configure("Custom.Treeview", background=self.theme["panel"], foreground=self.theme["text"], fieldbackground=self.theme["panel"], borderwidth=0, rowheight=30)
+        style.map("Custom.Treeview", background=[("selected", self.theme["accent"])])
+        style.configure("Custom.Treeview.Heading", background=self.theme["panel2"], foreground=self.theme["text"], borderwidth=0, font=("Segoe UI", 9, "bold"))
+        style.map("Custom.Treeview.Heading", background=[("active", self.theme["panel3"])])
+        
+        columns = ("date", "name", "score", "fps", "gpu")
+        tree = ttk.Treeview(content_frame, columns=columns, show="headings", height=15, style="Custom.Treeview")
+        
+        tree.heading("date", text="Date")
+        tree.heading("name", text="Benchmark")
+        tree.heading("score", text="Score")
+        tree.heading("fps", text="FPS")
+        tree.heading("gpu", text="GPU")
+        
+        tree.column("date", width=120)
+        tree.column("name", width=150)
+        tree.column("score", width=80, anchor="center")
+        tree.column("fps", width=80, anchor="center")
+        tree.column("gpu", width=250)
+        
+        for r in reversed(hist):
+            tree.insert("", "end", values=(r.get("date",""), r.get("name",""), r.get("score",""), r.get("fps",""), r.get("gpu","")))
+            
+        tree.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+
+    def _remove_win_title_bar(self, win):
+        try:
+            import ctypes
+            hwnd = ctypes.windll.user32.GetParent(win.winfo_id())
+            
+            try:
+                DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+                policy = ctypes.c_int(2)
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(policy), ctypes.sizeof(policy))
+            except Exception:
+                try:
+                    ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 19, ctypes.byref(policy), ctypes.sizeof(policy))
+                except Exception:
+                    pass
+                    
+            style = ctypes.windll.user32.GetWindowLongW(hwnd, -16)
+            style = style & ~0x00C00000
+            ctypes.windll.user32.SetWindowLongW(hwnd, -16, style)
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0037)
+        except Exception:
+            pass
 
     def convert_file(self):
         if not self.file_path or not self.current_data: return

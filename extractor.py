@@ -70,6 +70,46 @@ def collect_archive_info(archive_path):
                 if os.path.isfile(full) and name.lower().endswith(".xml"):
                     try: result["pairs"].extend(parse_xml_file(full))
                     except Exception: pass
+            
+            # Extract Monitoring Data
+            monitoring_path = os.path.join(td, "Monitoring.csv")
+            if os.path.exists(monitoring_path):
+                try:
+                    with open(monitoring_path, "r", encoding="utf-8", errors="ignore") as f:
+                        lines = f.readlines()
+                    if lines:
+                        headers = lines[0].strip().split(";")
+                        idx_time, idx_cpu_t, idx_gpu_t, idx_gpu_l, idx_cpu_c, idx_gpu_c = -1, -1, -1, -1, -1, -1
+                        for i, h in enumerate(headers):
+                            hl = h.lower()
+                            if "runtime" in hl: idx_time = i
+                            elif "processorcoretemperature" in hl: idx_cpu_t = i
+                            elif "gputemperature" in hl: idx_gpu_t = i
+                            elif "gpuload" in hl: idx_gpu_l = i
+                            elif "processorcoreclock" in hl and idx_cpu_c == -1: idx_cpu_c = i
+                            elif "gpucoreclock" in hl: idx_gpu_c = i
+                        
+                        m_time, m_cpu_t, m_gpu_t, m_gpu_l, m_cpu_c, m_gpu_c = [], [], [], [], [], []
+                        for line in lines[1:]:
+                            parts = line.strip("\n").split(";")
+                            if idx_time != -1 and len(parts) > idx_time and parts[idx_time]:
+                                m_time.append(safe_float(parts[idx_time]))
+                                m_cpu_t.append(safe_float(parts[idx_cpu_t]) if idx_cpu_t != -1 and len(parts) > idx_cpu_t and parts[idx_cpu_t] else None)
+                                m_gpu_t.append(safe_float(parts[idx_gpu_t]) if idx_gpu_t != -1 and len(parts) > idx_gpu_t and parts[idx_gpu_t] else None)
+                                m_gpu_l.append(safe_float(parts[idx_gpu_l]) if idx_gpu_l != -1 and len(parts) > idx_gpu_l and parts[idx_gpu_l] else None)
+                                m_cpu_c.append(safe_float(parts[idx_cpu_c]) if idx_cpu_c != -1 and len(parts) > idx_cpu_c and parts[idx_cpu_c] else None)
+                                m_gpu_c.append(safe_float(parts[idx_gpu_c]) if idx_gpu_c != -1 and len(parts) > idx_gpu_c and parts[idx_gpu_c] else None)
+                        
+                        result["monitoring"] = {
+                            "time": m_time,
+                            "cpu_temp": m_cpu_t,
+                            "gpu_temp": m_gpu_t,
+                            "gpu_load": m_gpu_l,
+                            "cpu_clock": m_cpu_c,
+                            "gpu_clock": m_gpu_c
+                        }
+                except Exception:
+                    pass
 
     pairs = result["pairs"]
     benchmark_id = find_first(pairs, ["benchmark_run_id", "benchmarkrunid", "run_id"])
@@ -166,6 +206,22 @@ def collect_archive_info(archive_path):
         "Computer": find_first(pairs, ["computer_name", "computername"]),
         "User": find_first(pairs, ["username", "user_name"]),
     }
+    
+    # Advanced Hardware
+    mb_vendor = find_first(pairs, ["Mainboard_Vendor", "mainboardvendor", "motherboardvendor"])
+    mb_model = find_first(pairs, ["Mainboard_Model", "mainboardmodel", "motherboardmodel"])
+    if mb_vendor or mb_model:
+        result["summary"]["Motherboard"] = f"{mb_vendor or ''} {mb_model or ''}".strip()
+    
+    bios_vendor = find_first(pairs, ["BIOS_Vendor", "biosvendor"])
+    bios_date = find_first(pairs, ["BIOS_Date", "biosdate"])
+    if bios_vendor or bios_date:
+        result["summary"]["BIOS"] = f"{bios_vendor or ''} {bios_date or ''}".strip()
+        
+    ram_speed = find_first(pairs, ["Marketing_Frequency", "memoryfrequency", "ramspeed"])
+    if ram_speed:
+        result["summary"]["RAM Speed"] = f"{ram_speed} MHz"
+    
     result["scores"] = dedup_scores[:]
     result["fps_values"] = primary_results[:]
     return result

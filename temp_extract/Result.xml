@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<benchmark>
+    <results>
+        <result>
+            <name/>
+            <description/>
+            <passIndex>-1</passIndex>
+            <SteelNomadStressTestDx12BestScore>6360</SteelNomadStressTestDx12BestScore>
+            <SteelNomadStressTestDx12Stability>97.5</SteelNomadStressTestDx12Stability>
+            <SteelNomadStressTestDx12WorstScore>6202</SteelNomadStressTestDx12WorstScore>
+            <SteelNomadStressTestDx12Passed>1</SteelNomadStressTestDx12Passed>
+            <SteelNomadStressTestTestLoopsDone>20</SteelNomadStressTestTestLoopsDone>
+            <benchmarkRunId>d2daff71-c14a-4aaa-9608-6d0a69a8772c</benchmarkRunId>
+        </result>
+        <result>
+            <name/>
+            <description/>
+            <passIndex>0</passIndex>
+            <SteelNomadStressTestDx123DMarkScoreForPass>6360</SteelNomadStressTestDx123DMarkScoreForPass>
+            <SteelNomadStressTestDx12GraphicsScoreForPass>6360</SteelNomadStressTestDx12GraphicsScoreForPass>
+            <SteelNomadStressTestDx12GraphicsTest>63.60</SteelNomadStressTestDx12GraphicsTest>
+            <benchmarkRunId>d2daff71-c14a-4aaa-9608-6d0a69a8772c</benchmarkRunId>
+        </result>
+    </results>
+</benchmark>

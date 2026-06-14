@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<benchmark>
+    <product>3dm</product>
+    <application_info>
+        <info>
+            <name>application_version</name>
+            <value>2.32.8871 s64</value>
+        </info>
+        <info>
+            <name>application_name</name>
+            <value>3DMark</value>
+        </info>
+        <info>
+            <name>install_id</name>
+            <value>c58549b6-2db7-4a2c-8b55-069031811179</value>
+        </info>
+        <info>
+            <name>benchmark_run_id</name>
+            <value>d2daff71-c14a-4aaa-9608-6d0a69a8772c</value>
+        </info>
+        <info>
+            <name>upgrade_key</name>
+            <value>kT7ivhGvOCAvoYjXNxy88F3h89Vmm2CQ3PRhZF/zErukCtydK/+xPoG1DRxl75zoslGlZUMaL4TQsKKmuzvlgA==</value>
+        </info>
+        <info>
+            <name>workload_platform</name>
+            <value>x64</value>
+        </info>
+        <info>
+            <name>platform</name>
+            <value>windows</value>
+        </info>
+        <info>
+            <name>benchmark_start_time</name>
+            <value>2026-06-13T07:02:18.711260700+02:00</value>
+        </info>
+        <info>
+            <name>display_connected_to_gpu</name>
+            <value>true</value>
+        </info>
+        <info>
+            <name>benchmark_finish_time</name>
+            <value>2026-06-13T07:22:50.911749200+02:00</value>
+        </info>
+    </application_info>
+    <test_info>
+        <benchmark_tests>
+            <benchmark_test name="SteelNomadDXST" test_run_type="EXPLICIT" version="1.0"/>
+        </benchmark_tests>
+        <workload_sets>
+            <workload_set name="SteelNomadGt1LoopDX"/>
+        </workload_sets>
+    </test_info>
+    <sets>
+        <set>
+            <name>SteelNomadGt1LoopDX</name>
+            <workloads>
+                <workload>
+                    <name>SteelNomadGt1LoopDX</name>
+                    <settings/>
+                    <results>
+                        <result pass_index="0">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">63.601559</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="1">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.801765</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="2">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.640133</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="3">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.456879</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="4">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.395447</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="5">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.155075</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="6">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.266136</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="7">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.22406</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="8">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.198318</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="9">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.085136</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="10">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.139</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="11">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.217701</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="12">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.231575</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="13">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.104519</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="14">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.150883</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="15">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.024593</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="16">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.170273</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="17">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.021519</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="18">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.129257</primary_result>
+                            <status code="0"/>
+                        </result>
+                        <result pass_index="19">
+                            <primary_result result_type="SteelNomadGt1LoopDX" unit="fps">62.104519</primary_result>
+                            <status code="0"/>
+                        </result>
+                    </results>
+                </workload>
+            </workloads>
+        </set>
+    </sets>
+    <settings>
+        <setting>
+            <name>display_string</name>
+            <value>Generic PnP Monitor</value>
+        </setting>
+        <setting>
+            <name>display_name</name>
+            <value>\\.\DISPLAY1</value>
+        </setting>
+        <setting>
+            <name>adapter_name</name>
+            <value>AMD Radeon RX 9070 XT</value>
+        </setting>
+        <setting>
+            <name>write_benchmark_run_xml_path</name>
+            <value>C:\ProgramData\UL\3DMark\Results\3DMark-SteelNomadStressTest-1-20260613072250.3dmark-result</value>
+        </setting>
+        <setting>
+            <name>present_adapter_luid</name>
+            <value>73066</value>
+        </setting>
+        <setting>
+            <name>used_adapter_luid</name>
+            <value>73066</value>
+        </setting>
+        <setting>
+            <name>present_display</name>
+            <value>\\?\DISPLAY#HKC2711#7&amp;3dcbd63&amp;0&amp;UID260#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}</value>
+        </setting>
+        <setting>
+            <name>pre_workload_apps_to_run</name>
+            <value/>
+        </setting>
+        <setting>
+            <name>fullscreen</name>
+            <value>true</value>
+        </setting>
+        <setting>
+            <name>vsync</name>
+            <value>false</value>
+        </setting>
+        <setting>
+            <name>loop</name>
+            <value>true</value>
+        </setting>
+        <setting>
+            <name>run_emulated_workload</name>
+            <value>false</value>
+        </setting>
+        <setting>
+            <name>disable_shader_compilation</name>
+            <value>true</value>
+        </setting>
+        <setting>
+            <name>asset_root</name>
+            <value>./</value>
+        </setting>
+        <setting>
+            <name>is_looping_enabled</name>
+            <value>true</value>
+        </setting>
+        <setting>
+            <name>workload_dlc_name</name>
+            <value>steel-nomad-test</value>
+        </setting>
+        <setting>
+            <name>resource_dlc_name</name>
+            <value>steel-nomad-test</value>
+        </setting>
+        <setting>
+            <name>base_log_path</name>
+            <value/>
+        </setting>
+        <setting>
+            <name>config</name>
+            <value>configs/gt1_stress.json</value>
+        </setting>
+        <setting>
+            <name>workload_name</name>
+            <value>SteelNomadGt1LoopDX</value>
+        </setting>
+        <setting>
+            <name>ux_dat_path</name>
+            <value/>
+        </setting>
+        <setting>
+            <name>launch_binary_arm64</name>
+            <value>windows/bin/arm64/3DMarkSteelNomad.exe</value>
+        </setting>
+        <setting>
+            <name>launch_binary_x64</name>
+            <value>windows/bin/x64/3DMarkSteelNomad.exe</value>
+        </setting>
+        <setting>
+            <name>launch_binary</name>
+            <value>D:\SteamLibrary\steamapps\common\3DMark\dlc\steel-nomad-test\windows\bin\x64\3DMarkSteelNomad.exe</value>
+        </setting>
+        <setting>
+            <name>adapter_luid</name>
+            <value>73066</value>
+        </setting>
+        <setting>
+            <name>display_id</name>
+            <value>\\?\DISPLAY#HKC2711#7&amp;3dcbd63&amp;0&amp;UID260#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}</value>
+        </setting>
+        <setting>
+            <name>backend</name>
+            <value>dx12</value>
+        </setting>
+        <setting>
+            <name>loop_count</name>
+            <value>20</value>
+        </setting>
+        <setting>
+            <name>enable_window_mode</name>
+            <value>false</value>
+        </setting>
+        <setting>
+            <name>enable_debug_log</name>
+            <value>false</value>
+        </setting>
+        <setting>
+            <name>local_pictures_directory</name>
+            <value>C:\Users\brunp\Pictures\3DMark\SteelNomadStressTest</value>
+        </setting>
+        <setting>
+            <name>local_documents_directory</name>
+            <value>C:\Users\brunp\Documents\3DMark\SteelNomadStressTest</value>
+        </setting>
+    </settings>
+    <results>
+        <result pass_index="0">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6360.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="0">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6360.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="1">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6280.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="1">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6280.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="2">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6264.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="2">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6264.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="3">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6245.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="3">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6245.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="4">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6239.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="4">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6239.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="5">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6215.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="5">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6215.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="6">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6226.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="6">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6226.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="7">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6222.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="7">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6222.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="8">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6219.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="8">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6219.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="9">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6208.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="9">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6208.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="10">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6213.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="10">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6213.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="11">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6221.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="11">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6221.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="12">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6223.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="12">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6223.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="13">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6210.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="13">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6210.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="14">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6215.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="14">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6215.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="15">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6202.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="15">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6202.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="16">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6217.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="16">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6217.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="17">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6202.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="17">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6202.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="18">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6212.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="18">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6212.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="19">
+            <name>SteelNomadStressTestOverallScoreDXForPass</name>
+            <value unit="">6210.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="19">
+            <name>SteelNomadStressTestGraphicsScoreDXForPass</name>
+            <value unit="">6210.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="-1">
+            <name>SteelNomadStressTestBestScoreDX</name>
+            <value unit="">6360.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="-1">
+            <name>SteelNomadStressTestStabilityDX</name>
+            <value unit="%">97.51572327044025</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="-1">
+            <name>SteelNomadStressTestWorstScoreDX</name>
+            <value unit="">6202.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="-1">
+            <name>SteelNomadStressTestPassDX</name>
+            <value unit="">1.0</value>
+            <status code="0">OK</status>
+        </result>
+        <result pass_index="-1">
+            <name>SteelNomadStressTestLoopsDoneDX</name>
+            <value unit="">20.0</value>
+            <status code="0">OK</status>
+        </result>
+    </results>
+    <execution_state fsm_state="NOT_STARTED">
+        <current_workload_index>1</current_workload_index>
+    </execution_state>
+</benchmark>
